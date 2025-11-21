@@ -1,57 +1,65 @@
-// import bcrypt from "bcryptjs";
-// import dotenv from "dotenv";
-// import connectDB from "../config/database";
-// import { RoleModel } from "../models/roleModel";
-// import { UserModel } from "../models/userModel";
-// import { UserRoleModel } from "../models/userRole";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 
-// dotenv.config();
+import userModel from "../models/userModel";
+import roleModel from "../models/roleModel";
+import userRoleModel from "../models/userRole";
+dotenv.config();
 
-// const seedAdmin = async () => {
-//   try {
-//     await connectDB();
+const MONGO_URI = process.env.MONGO_URI || "";
 
-//     const roles = ["admin", "farmer", "customer"];
-//     for (const name of roles) {
-//       await RoleModel.findOneAndUpdate(
-//         { name },
-//         { name },
-//         { upsert: true, new: true }
-//       );
-//     }
+async function createAdminSeed() {
+  try {
+    // 1. Connect to database
+    await mongoose.connect(MONGO_URI);
+    console.log("Connected to MongoDB");
 
-//     const hashedPassword = await bcrypt.hash(
-//       process.env.ADMIN_PASSWORD || "admin123",
-//       10
-//     );
+    // 2. Create or update role "Admin"
+    const adminRole = await roleModel.findOneAndUpdate(
+      { name: "Admin" },
+      { name: "Admin" },
+      { new: true, upsert: true }
+    );
 
-//     const adminUser = await UserModel.findOneAndUpdate(
-//       { email: process.env.ADMIN_EMAIL || "admin@example.com" },
-//       {
-//         full_name: process.env.ADMIN_FULLNAME || "Admin User",
-//         email: process.env.ADMIN_EMAIL || "admin@example.com",
-//         phone: process.env.ADMIN_PHONE || "0123456789",
-//         password: hashedPassword,
-//         role: "admin",
-//         created_by: "system",
-//       },
-//       { upsert: true, new: true }
-//     );
+    console.log("Admin role:", adminRole);
 
-//     const adminRole = await RoleModel.findOne({ name: "admin" });
+    // 3. Create or update admin user
+    const email = process.env.ADMIN_EMAIL!;
+    const pwd = process.env.ADMIN_PASSWORD!;
+    const firstName = process.env.ADMIN_FIRST_NAME!;
+    const lastName = process.env.ADMIN_LAST_NAME!;
+    const phone = process.env.ADMIN_PHONE!;
 
-//     await UserRoleModel.findOneAndUpdate(
-//       { user_id: adminUser._id, role_id: adminRole!._id },
-//       { user_id: adminUser._id, role_id: adminRole!._id },
-//       { upsert: true, new: true }
-//     );
+    const hashedPassword = await bcrypt.hash(pwd, 10);
 
-//     console.log("🎉 Admin + roles seeded!");
-//     process.exit();
-//   } catch (err) {
-//     console.error(err);
-//     process.exit(1);
-//   }
-// };
+    const adminUser = await userModel.findOneAndUpdate(
+      { email },
+      {
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        password: hashedPassword,
+        phone: phone,
+      },
+      { new: true, upsert: true }
+    );
 
-// seedAdmin();
+    console.log("Admin user created:", adminUser);
+
+    // 4. Assign admin role to the user
+    await userRoleModel.updateOne(
+      { user: adminUser._id },
+      { user: adminUser._id, role: adminRole._id },
+      { upsert: true }
+    );
+
+    console.log("Admin role assigned successfully!");
+    process.exit(0);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+}
+
+createAdminSeed();

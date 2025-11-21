@@ -1,18 +1,16 @@
-import mongoose from "mongoose";
+import { IUserRoles } from "../types/userRoleType";
+import { model, Schema } from "mongoose";
 
-export const UserRoleModel = mongoose.model(
-  "UserRole",
-  new mongoose.Schema({
-    user_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    role_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Role",
-      required: true,
-    },
-  }),
-  "user_roles"
+const userRolesSchema = new Schema<IUserRoles>(
+  {
+    user: { type: Schema.Types.ObjectId, ref: "user", required: true },
+    role: { type: Schema.Types.ObjectId, ref: "role", required: true },
+  },
+  {
+    timestamps: true,
+  }
 );
+
+userRolesSchema.index({ user: 1, role: 1 }, { unique: true });
+
+export default model<IUserRoles>("userRoles", userRolesSchema);

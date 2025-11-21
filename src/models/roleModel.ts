@@ -1,7 +1,14 @@
-import mongoose from "mongoose";
+import { IRole } from "../types/roleType";
+import { model, Schema } from "mongoose";
 
-export const RoleModel = mongoose.model(
-  "Role",
-  new mongoose.Schema({ name: { type: String, required: true, unique: true } }),
-  "roles"
+const rolesModel = new Schema<IRole>(
+  {
+    name: { type: String, unique: true, required: true },
+    description: { type: String },
+  },
+  {
+    timestamps: true,
+  }
 );
+
+export default model<IRole>("roles", rolesModel);

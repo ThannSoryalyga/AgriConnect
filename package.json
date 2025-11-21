@@ -4,12 +4,11 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "seed:admin": "ts-node src/seed/createAdmin.ts",
-    "seed:role": "ts-node src/seed/seedRole.ts",
-    "start": "node --env-file .env dist/server.js",
-    "build": "tsc -p tsconfig.build.json",
-    "dev": "nodemon"
+    "dev": "tsx -r dotenv/config src/server.ts",
+    "seed:roles": "tsx src/seed/seedRole.ts",
+    "seed:admin": "tsx src/seed/seedAdmin.ts",
+    "start": "node -r dotenv/config dist/server.ts",
+    "build": "tsc -p tsconfig.json"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +24,7 @@
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   },
   "dependencies": {

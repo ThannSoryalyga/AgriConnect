@@ -5,6 +5,7 @@ export interface IUser {
   phone: string;
   address?: string;
   role?: string;
+  status: "Active" | "Inactive";
   created_by?: string;
   createAt: Date;
   updatedAt: Date;

@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/userModel";
-import { RoleModel } from "../models/roleModel";
-import { UserRoleModel } from "../models/userRole";
+import RoleModel from "../models/roleModel";
+import UserRoleModel from "../models/userRole";
 import { IUser } from "../types/userType";
 
 export const registerUser = async (data: IUser) => {
