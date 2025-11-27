@@ -6,52 +6,56 @@ import UserRoleModel from "../models/userRole";
 import { IUser } from "../types/userType";
 
 export const registerUser = async (data: IUser) => {
-  const { full_name, email, phone, password, address, role } = data;
+  const { full_name, email, phone, password, address } = data;
 
+  // Check if the email or phone already exists in the database
   const existing = await UserModel.findOne({ $or: [{ email }, { phone }] });
   if (existing) throw new Error("Email or phone already exists");
 
+  // Hash the password so it cannot be read by anyone
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  // Create a new user in the database
   const user = await UserModel.create({
     full_name,
     email,
+    password: hashedPassword, // save hashed password, not the real one
     phone,
-    password: hashedPassword,
     address,
-    role: role || "customer",
-    created_by: role === "admin" ? "system" : "customer",
   });
 
-  // Assign role in UserRole
-  const roleDoc = await RoleModel.findOne({ name: role || "customer" });
-  if (roleDoc) {
-    await UserRoleModel.findOneAndUpdate(
-      { user_id: user._id, role_id: roleDoc._id },
-      { user_id: user._id, role_id: roleDoc._id },
-      { upsert: true, new: true }
-    );
-  }
+  // Find the role named "customer"
+  const userRole = await RoleModel.findOne({ name: "customer" });
 
-  return user;
+  // If the role exists, save the user-role record
+  if (userRole) {
+    await UserRoleModel.create({
+      user: user._id, // user ID
+      role: userRole._id, // role ID
+    });
+  }
 };
 
 export const loginUser = async (email: string, password: string) => {
+  // Find user by email
   const user = await UserModel.findOne({ email });
   if (!user) throw new Error("Invalid email or password");
 
+  // Check if the password is correct
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error("Invalid email or password");
 
-  const token = jwt.sign(
+  // Create a JWT token for the user (used for login sessions)
+  const token: string = jwt.sign(
     {
-      userId: user._id,
+      userId: user._id, // put user ID inside the token
       email: user.email,
-      role: user.$assertPopulated("role"),
+      role: (user as any).role, // optional role data
     },
-    process.env.JWT_SECRET!,
-    { expiresIn: "7d" }
+    process.env.JWT_SECRET!, // secret key from .env file
+    { expiresIn: "7d" } // token will expire in 7 days
   );
 
-  return { token, user };
+  // Return user data and the token
+  return { user, token };
 };

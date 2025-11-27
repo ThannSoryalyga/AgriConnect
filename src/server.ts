@@ -21,6 +21,6 @@ swaggerSetup(app);
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
-  console.log(`📄 Swagger docs: http://localhost:${PORT}/api`);
+  console.log(` Server running at http://localhost:${PORT}`);
+  console.log(` Swagger docs: http://localhost:${PORT}/api`);
 });

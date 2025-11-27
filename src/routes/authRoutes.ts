@@ -39,27 +39,13 @@ const router = Router();
  *     responses:
  *       201:
  *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 full_name:
- *                   type: string
- *                 email:
- *                   type: string
- *                 phone:
- *                   type: string
- *                 address:
- *                   type: string
- *                 created_at:
- *                   type: string
  *       400:
  *         description: Bad request
  */
 router.post("/register", authController.register);
+// This route handles user registration
+// When a client sends POST /api/auth/register,
+// it sends the data to authController.register.
 
 /**
  * @swagger
@@ -90,6 +76,9 @@ router.post("/register", authController.register);
  *         description: Unauthorized
  */
 router.post("/login", authController.login);
+// This route handles user login
+// When a client sends POST /api/auth/login,
+// the request goes to authController.login.
 
 /**
  * @swagger
@@ -104,5 +93,9 @@ router.post("/login", authController.login);
  *         description: Logout successful
  */
 router.post("/logout", authenticate, authController.logout);
+// This route logs out a user
+// The authenticate middleware checks the token first
+// If valid, it calls authController.logout
 
 export default router;
+// Export the router so it can be used in your main app

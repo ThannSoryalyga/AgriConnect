@@ -25,7 +25,7 @@ export const register = async (req: Request, res: Response) => {
     const { password: _, ...userWithoutPassword } = user.toObject();
     res.status(201).json(userWithoutPassword);
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(400).json({ message: "Bad Request" });
   }
 };
 
